@@ -154,30 +154,33 @@
             100% { transform: translate(0); text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); }
         }
 
-        /* KATTAVA MOBIILIOPTIMOINTI */
+        /* KATTAVA MOBIILIOPTIMOINTI (Korjattu!) */
         @media (max-width: 600px) {
-            body { 
-                padding: 15px; 
-            }
-            .container {
-                padding: 15px; 
-            }
+            body { padding: 15px; }
+            .container { padding: 15px; }
+            
             h1 {
                 font-size: 1.2em;
                 margin-bottom: 25px;
-                /* Korjataan otsikon viiva vastaamaan uutta 15px paddingia */
+                
+                /* TÄSSÄ SE KORJAUS: Mobiilin negatiivinen ylämarginaali vastaa nyt 15px paddingia! */
+                margin-top: -15px; 
                 margin-left: -15px;
                 margin-right: -15px;
+                
                 padding-left: 15px;
                 padding-right: 15px;
                 padding-top: 15px;
                 padding-bottom: 15px;
             }
+            
             .app-grid { 
                 grid-template-columns: 1fr; 
                 gap: 15px;
             }
-            a {
+            
+            /* Vain sovellusnapit venytetään, ei @-merkkiä */
+            .links a {
                 display: block;
                 text-align: center;
                 margin-right: 0;
