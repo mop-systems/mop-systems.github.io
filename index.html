@@ -23,9 +23,8 @@
 
         body { 
             font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; 
-            background-color: var(--bg-base); 
             color: var(--text-main); 
-            padding: 40px 20px; 
+            padding: 50px 20px; 
             line-height: 1.6;
             display: flex;
             justify-content: center;
@@ -33,11 +32,39 @@
             min-height: 100vh;
             margin: 0;
             box-sizing: border-box;
-            
-            /* Hienovarainen Linux-työpöydän pisteverkkotausta (Dot grid) */
+            background-color: var(--bg-base);
+        }
+
+        /* --- INTERAKTIIVINEN TAUSTA --- */
+        .wallpaper {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            z-index: -2;
+            background-color: var(--bg-base);
+            /* Hienovarainen pisteverkkotausta */
             background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
             background-size: 20px 20px;
         }
+
+        .cursor-glow {
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none; /* Ei estä klikkauksia */
+            /* Piirtää hehkun kursorin koordinaatteihin */
+            background: radial-gradient(
+                circle 500px at var(--mouse-x, -100%) var(--mouse-y, -100%),
+                rgba(255, 255, 255, 0.07),
+                transparent 40%
+            );
+        }
+        /* ------------------------------ */
 
         .container { 
             max-width: 750px; 
@@ -46,18 +73,20 @@
             position: relative; 
         }
 
-        /* Pääotsikko - CLI Prompt tyyliin */
-        .prompt-header {
-            font-size: 1.3em;
-            margin-bottom: 40px;
-            color: var(--text-main);
-            text-shadow: 0 0 10px rgba(255,255,255,0.1);
+        /* Pääotsikko */
+        .main-title {
+            font-size: 2.8em;
+            margin: 0 0 40px 0;
+            color: #ffffff;
+            letter-spacing: 4px;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
         }
-
-        .prompt-user { color: #82aaff; font-weight: bold; }
-        .prompt-host { color: #c3e88d; font-weight: bold; }
-        .prompt-dir { color: #89ddff; }
-        .blink { animation: blinker 1s step-end infinite; color: var(--text-main); }
+        .main-title .blink { 
+            animation: blinker 1s step-end infinite; 
+            color: var(--border-color); 
+        }
 
         /* Tiling Window Manager (TWM) -tyylinen Grid */
         .app-grid {
@@ -104,6 +133,7 @@
             height: 10px;
             border-radius: 50%;
             background-color: var(--border-color);
+            transition: all 0.2s ease;
         }
 
         /* Ikkunan sisältö */
@@ -118,7 +148,7 @@
             margin-top: 10px;
         }
 
-        /* Napit (Modernit terminaalikomennot) */
+        /* Napit */
         a { 
             text-decoration: none; 
             font-size: 0.9em;
@@ -148,8 +178,8 @@
             border-color: var(--trmping-color);
             box-shadow: 0 10px 30px var(--trmping-glow);
         }
-        .window.trmping .titlebar-text { color: var(--trmping-color); text-shadow: 0 0 8px var(--trmping-glow); }
-        .window.trmping .dot:nth-child(1) { background-color: var(--trmping-color); box-shadow: 0 0 5px var(--trmping-color); }
+        .window.trmping:hover .titlebar-text { color: var(--trmping-color); text-shadow: 0 0 8px var(--trmping-glow); }
+        .window.trmping:hover .dot:nth-child(1) { background-color: var(--trmping-color); box-shadow: 0 0 5px var(--trmping-color); }
         
         .window.trmping a { color: var(--text-main); }
         .window.trmping a:hover {
@@ -163,8 +193,8 @@
             border-color: var(--trakr-color);
             box-shadow: 0 10px 30px var(--trakr-glow);
         }
-        .window.trakr .titlebar-text { color: var(--trakr-color); text-shadow: 0 0 8px var(--trakr-glow); }
-        .window.trakr .dot:nth-child(1) { background-color: var(--trakr-color); box-shadow: 0 0 5px var(--trakr-color); }
+        .window.trakr:hover .titlebar-text { color: var(--trakr-color); text-shadow: 0 0 8px var(--trakr-glow); }
+        .window.trakr:hover .dot:nth-child(1) { background-color: var(--trakr-color); box-shadow: 0 0 5px var(--trakr-color); }
         
         .window.trakr a { color: var(--text-main); }
         .window.trakr a:hover {
@@ -177,19 +207,23 @@
 
         /* MOBIILIOPTIMOINTI */
         @media (max-width: 600px) {
-            body { padding: 20px 10px; }
-            .prompt-header { font-size: 1.1em; margin-bottom: 25px; }
+            body { padding: 30px 15px; }
+            .main-title { font-size: 2em; margin-bottom: 30px; letter-spacing: 2px; }
             .app-grid { grid-template-columns: 1fr; gap: 20px; }
             .window-content { padding: 20px; }
         }
     </style>
 </head>
 <body>
+    <!-- Taustakerrokset -->
+    <div class="wallpaper"></div>
+    <div class="cursor-glow"></div>
+
+    <!-- Varsinainen sisältö -->
     <div class="container">
-        <!-- Linux Prompt -tyylinen otsikko -->
-        <div class="prompt-header">
-            <span class="prompt-user">root</span>@<span class="prompt-host">mop-systems</span>:<span class="prompt-dir">~</span>$ ls -l ./apps<span class="blink">_</span>
-        </div>
+        
+        <!-- Puhdas ja näyttävä otsikko -->
+        <h1 class="main-title">M.O.P Systems<span class="blink">_</span></h1>
 
         <div class="app-grid">
             
@@ -239,5 +273,14 @@
 
         </div>
     </div> 
+
+    <!-- Skripti kursorin valoefektiä varten -->
+    <script>
+        document.addEventListener('mousemove', (e) => {
+            // Päivitetään CSS-muuttujat hiiren sijainnin mukaan
+            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+        });
+    </script>
 </body>
 </html>
