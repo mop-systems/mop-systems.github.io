@@ -5,25 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.O.P Systems</title>
     <style>
+        /* CSS-muuttujat väreille ja teemalle */
         :root {
-            --bg-base: #06070a;
-            --bg-window: rgba(16, 17, 26, 0.8);
-            --text-main: #e2e8f0;
+            --bg-base: #0a0b10;
+            --bg-window: #13141c;
+            --text-main: #c0c5ce;
+            --text-muted: #65737e;
+            --border-color: #2b2c36;
             
-            /* Sovellusten kiinteät värit */
+            /* Sovellusten avainvärit */
             --trmping-color: #00ff41;
-            --trmping-glow: rgba(0, 255, 65, 0.25);
-            --trmping-bg: rgba(0, 255, 65, 0.05);
+            --trmping-glow: rgba(0, 255, 65, 0.15);
             
             --trakr-color: #a26bff;
-            --trakr-glow: rgba(162, 107, 255, 0.25);
-            --trakr-bg: rgba(162, 107, 255, 0.05);
+            --trakr-glow: rgba(162, 107, 255, 0.15);
         }
 
         body { 
             font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; 
+            background-color: var(--bg-base); 
             color: var(--text-main); 
-            padding: 50px 20px; 
+            padding: 40px 20px; 
             line-height: 1.6;
             display: flex;
             justify-content: center;
@@ -31,104 +33,64 @@
             min-height: 100vh;
             margin: 0;
             box-sizing: border-box;
-            background-color: var(--bg-base);
-        }
-
-        /* --- VANHA CRT-TAUSTA --- */
-        .crt-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -4;
-            /* Vanha tuttu staattinen juovitus */
-            background-image: linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px);
-            background-size: 100% 4px;
-        }
-
-        /* Pyyhkivä skannerijuova */
-        .crt-sweep {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 120px; 
-            background: linear-gradient(to bottom, rgba(0,255,65,0) 0%, rgba(0,255,65,0.06) 50%, rgba(0,255,65,0) 100%);
-            z-index: -3;
-            pointer-events: none;
-            animation: crt-sweep-anim 6s linear infinite; 
-        }
-
-        @keyframes crt-sweep-anim {
-            0% { transform: translateY(-120px); }
-            100% { transform: translateY(100vh); }
-        }
-
-        /* --- UUSI: MAGNEETTINEN DISTORTIO KURSORIN ALLA --- */
-        .magnetic-distortion {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -2;
-            pointer-events: none;
             
-            /* Tehdään ruudukosta hieman paksumpi ja harvempi kursorin alla */
-            background-image: linear-gradient(rgba(0, 255, 65, 0.25) 1px, transparent 1px);
-            background-size: 100% 5.5px; 
-            
-            /* Magneettinen "veto": siirtää taustan Y-akselia vastakkaiseen suuntaan kursorin liikkeestä */
-            background-position: 0px calc(var(--mouse-y, 0px) * -0.04);
-            
-            /* Maski piilottaa tämän efektin kaikkialta muualta paitsi kursorin ympäriltä */
-            -webkit-mask-image: radial-gradient(circle 140px at var(--mouse-x, -100%) var(--mouse-y, -100%), black, transparent);
-            mask-image: radial-gradient(circle 140px at var(--mouse-x, -100%) var(--mouse-y, -100%), black, transparent);
+            /* Hienovarainen Linux-työpöydän pisteverkkotausta (Dot grid) */
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
-        /* -------------------------------------------------- */
 
         .container { 
-            max-width: 800px; 
+            max-width: 750px; 
             width: 100%;
             z-index: 1; 
             position: relative; 
         }
 
-        .main-title {
-            font-size: 2.8em;
-            margin: 0 0 50px 0;
-            color: #ffffff;
-            letter-spacing: 4px;
-            font-weight: 800;
-            text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
-            text-align: center;
-        }
-        .main-title .blink { 
-            animation: blinker 1s step-end infinite; 
-            color: var(--trmping-color); 
+        /* Pääotsikko - CLI Prompt tyyliin */
+        .prompt-header {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
 
+        .prompt-user { color: #82aaff; font-weight: bold; }
+        .prompt-host { color: #c3e88d; font-weight: bold; }
+        .prompt-dir { color: #89ddff; }
+        .blink { animation: blinker 1s step-end infinite; color: var(--text-main); }
+
+        /* Tiling Window Manager (TWM) -tyylinen Grid */
         .app-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
+            gap: 25px;
             align-items: start; 
         }
 
-        /* Yksittäinen Ikkuna */
+        /* Yksittäinen "Ikkuna" */
         .window {
             background-color: var(--bg-window);
-            border-radius: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         .window:hover {
-            transform: translateY(-4px);
+            transform: translateY(-2px);
         }
 
+        /* Ikkunan yläpalkki (Titlebar) */
         .titlebar {
-            padding: 10px 15px;
-            font-size: 0.9em;
+            padding: 8px 15px;
+            font-size: 0.85em;
             font-weight: bold;
             display: flex;
             align-items: center;
-            background-color: rgba(0,0,0,0.6);
+            background-color: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
         }
 
         .titlebar-dots {
@@ -138,11 +100,13 @@
         }
 
         .dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
+            background-color: var(--border-color);
         }
 
+        /* Ikkunan sisältö */
         .window-content {
             padding: 25px;
         }
@@ -150,108 +114,86 @@
         .links {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 10px;
         }
 
+        /* Napit (Modernit terminaalikomennot) */
         a { 
             text-decoration: none; 
             font-size: 0.9em;
-            padding: 12px 15px;
-            border-radius: 6px;
+            padding: 10px 15px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
             transition: all 0.2s ease;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-weight: bold;
         }
 
         a::after {
             content: "→";
-            opacity: 0.7;
+            opacity: 0.5;
             transition: transform 0.2s ease;
         }
 
         a:hover::after {
-            transform: translateX(5px);
+            transform: translateX(4px);
             opacity: 1;
         }
 
-        /* === trmPING TEEMA === */
-        .window.trmping {
-            border: 1px solid var(--trmping-color);
-            box-shadow: 0 5px 25px rgba(0, 255, 65, 0.05);
+        /* === trmPING TEEMA (Vihreä) === */
+        .window.trmping:hover {
+            border-color: var(--trmping-color);
+            box-shadow: 0 10px 30px var(--trmping-glow);
         }
-        .window.trmping:hover { box-shadow: 0 10px 40px var(--trmping-glow); }
+        .window.trmping .titlebar-text { color: var(--trmping-color); text-shadow: 0 0 8px var(--trmping-glow); }
+        .window.trmping .dot:nth-child(1) { background-color: var(--trmping-color); box-shadow: 0 0 5px var(--trmping-color); }
         
-        .window.trmping .titlebar { border-bottom: 1px solid rgba(0, 255, 65, 0.3); }
-        .window.trmping .titlebar-text { color: var(--trmping-color); text-shadow: 0 0 10px var(--trmping-glow); }
-        .window.trmping .dot { background-color: var(--trmping-color); opacity: 0.5; }
-        .window.trmping .dot:nth-child(1) { opacity: 1; box-shadow: 0 0 8px var(--trmping-color); }
-        
-        .window.trmping a { 
-            background-color: var(--trmping-bg);
-            border: 1px solid rgba(0, 255, 65, 0.3);
-            color: var(--text-main); 
-        }
+        .window.trmping a { color: var(--text-main); }
         .window.trmping a:hover {
-            background-color: rgba(0, 255, 65, 0.15);
+            background-color: var(--trmping-glow);
             border-color: var(--trmping-color);
             color: var(--trmping-color);
-            text-shadow: 0 0 8px var(--trmping-glow);
         }
 
-        /* === TRAKR TEEMA === */
-        .window.trakr {
-            border: 1px solid var(--trakr-color);
-            box-shadow: 0 5px 25px rgba(162, 107, 255, 0.05);
+        /* === TRAKR TEEMA (Violetti) === */
+        .window.trakr:hover {
+            border-color: var(--trakr-color);
+            box-shadow: 0 10px 30px var(--trakr-glow);
         }
-        .window.trakr:hover { box-shadow: 0 10px 40px var(--trakr-glow); }
+        .window.trakr .titlebar-text { color: var(--trakr-color); text-shadow: 0 0 8px var(--trakr-glow); }
+        .window.trakr .dot:nth-child(1) { background-color: var(--trakr-color); box-shadow: 0 0 5px var(--trakr-color); }
         
-        .window.trakr .titlebar { border-bottom: 1px solid rgba(162, 107, 255, 0.3); }
-        .window.trakr .titlebar-text { color: var(--trakr-color); text-shadow: 0 0 10px var(--trakr-glow); }
-        .window.trakr .dot { background-color: var(--trakr-color); opacity: 0.5; }
-        .window.trakr .dot:nth-child(1) { opacity: 1; box-shadow: 0 0 8px var(--trakr-color); }
-        
-        .window.trakr a { 
-            background-color: var(--trakr-bg);
-            border: 1px solid rgba(162, 107, 255, 0.3);
-            color: var(--text-main); 
-        }
+        .window.trakr a { color: var(--text-main); }
         .window.trakr a:hover {
-            background-color: rgba(162, 107, 255, 0.15);
+            background-color: var(--trakr-glow);
             border-color: var(--trakr-color);
             color: var(--trakr-color);
-            text-shadow: 0 0 8px var(--trakr-glow);
         }
 
         @keyframes blinker { 50% { opacity: 0; } }
 
         /* MOBIILIOPTIMOINTI */
-        @media (max-width: 700px) {
-            body { padding: 30px 15px; }
-            .main-title { font-size: 2em; margin-bottom: 40px; }
-            .app-grid { grid-template-columns: 1fr; gap: 30px; }
-            .magnetic-distortion { display: none; } /* Poistetaan kursoriefekti mobiilista */
+        @media (max-width: 600px) {
+            body { padding: 20px 10px; }
+            .prompt-header { font-size: 1.1em; margin-bottom: 25px; }
+            .app-grid { grid-template-columns: 1fr; gap: 20px; }
+            .window-content { padding: 20px; }
         }
     </style>
 </head>
 <body>
-    <!-- Taustakerrokset -->
-    <div class="crt-bg"></div>
-    <div class="crt-sweep"></div>
-    
-    <!-- Magneettinen Linssi (Reagoi CSS-muuttujiin) -->
-    <div class="magnetic-distortion"></div>
-
-    <!-- Varsinainen sisältö -->
     <div class="container">
-        
-        <h1 class="main-title">M.O.P Systems<span class="blink">_</span></h1>
+        <!-- Linux Prompt -tyylinen otsikko -->
+        <div class="prompt-header">
+            <span class="prompt-user">root</span>@<span class="prompt-host">mop-systems</span>:<span class="prompt-dir">~</span>$ ls -l ./apps<span class="blink">_</span>
+        </div>
 
         <div class="app-grid">
             
-            <!-- Sovellus 1: trmPING -->
+            <!-- Sovellus 1: trmPING (Vihreä teema) -->
             <div class="window trmping">
                 <div class="titlebar">
                     <div class="titlebar-dots">
@@ -273,7 +215,7 @@
                 </div>
             </div>
 
-            <!-- Sovellus 2: TRAKR -->
+            <!-- Sovellus 2: TRAKR (Violetti teema) -->
             <div class="window trakr">
                 <div class="titlebar">
                     <div class="titlebar-dots">
@@ -297,19 +239,5 @@
 
         </div>
     </div> 
-
-    <!-- Skripti kursorin koordinaatteja varten -->
-    <script>
-        const updateCursor = (e) => {
-            document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-            document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
-        };
-        
-        document.addEventListener('mousemove', updateCursor);
-        
-        // Asetetaan aloituspiste ruudun ulkopuolelle, ettei efekti näy ennen liikettä
-        document.documentElement.style.setProperty('--mouse-x', `-1000px`);
-        document.documentElement.style.setProperty('--mouse-y', `-1000px`);
-    </script>
 </body>
 </html>
