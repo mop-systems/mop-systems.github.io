@@ -7,13 +7,8 @@
     <style>
         :root {
             --bg-base: #06070a;
-            --bg-window: #10111a;
+            --bg-window: rgba(16, 17, 26, 0.8);
             --text-main: #e2e8f0;
-            --text-muted: #64748b;
-            
-            /* Synthwave kursorin värit */
-            --synth-cyan: #00f3ff;
-            --synth-pink: #ff00ea;
             
             /* Sovellusten kiinteät värit */
             --trmping-color: #00ff41;
@@ -39,59 +34,50 @@
             background-color: var(--bg-base);
         }
 
-        /* --- SYNTHWAVE INTERAKTIIVINEN TAUSTA --- */
-        
-        /* 1. Himmeä perusruudukko, joka on aina näkyvissä */
-        .grid-static {
+        /* --- VANHA CRT-TAUSTA --- */
+        .crt-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -3;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
+            z-index: -4;
+            /* Vanha tuttu staattinen juovitus */
+            background-image: linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+            background-size: 100% 4px;
         }
 
-        /* 2. Kirkas Synthwave-ruudukko, joka paljastuu kursorin alla */
-        .grid-interactive {
+        /* Pyyhkivä skannerijuova */
+        .crt-sweep {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 120px; 
+            background: linear-gradient(to bottom, rgba(0,255,65,0) 0%, rgba(0,255,65,0.06) 50%, rgba(0,255,65,0) 100%);
+            z-index: -3;
+            pointer-events: none;
+            animation: crt-sweep-anim 6s linear infinite; 
+        }
+
+        @keyframes crt-sweep-anim {
+            0% { transform: translateY(-120px); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* --- UUSI: MAGNEETTINEN DISTORTIO KURSORIN ALLA --- */
+        .magnetic-distortion {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -2;
             pointer-events: none;
             
-            /* Pystyviivat Cyan, Vaakaviivat Hot Pink */
-            background-image: 
-                linear-gradient(var(--synth-pink) 1px, transparent 1px),
-                linear-gradient(90deg, var(--synth-cyan) 1px, transparent 1px);
-            background-size: 40px 40px;
+            /* Tehdään ruudukosta hieman paksumpi ja harvempi kursorin alla */
+            background-image: linear-gradient(rgba(0, 255, 65, 0.25) 1px, transparent 1px);
+            background-size: 100% 5.5px; 
             
-            /* Maski tekee efektin: ruudukko näkyy vain kursorin kohdalla */
-            -webkit-mask-image: radial-gradient(
-                circle 300px at var(--mouse-x, -100%) var(--mouse-y, -100%), 
-                rgba(0,0,0,1) 0%, 
-                rgba(0,0,0,0.5) 40%,
-                rgba(0,0,0,0) 100%
-            );
-            mask-image: radial-gradient(
-                circle 300px at var(--mouse-x, -100%) var(--mouse-y, -100%), 
-                rgba(0,0,0,1) 0%, 
-                rgba(0,0,0,0.5) 40%,
-                rgba(0,0,0,0) 100%
-            );
+            /* Magneettinen "veto": siirtää taustan Y-akselia vastakkaiseen suuntaan kursorin liikkeestä */
+            background-position: 0px calc(var(--mouse-y, 0px) * -0.04);
+            
+            /* Maski piilottaa tämän efektin kaikkialta muualta paitsi kursorin ympäriltä */
+            -webkit-mask-image: radial-gradient(circle 140px at var(--mouse-x, -100%) var(--mouse-y, -100%), black, transparent);
+            mask-image: radial-gradient(circle 140px at var(--mouse-x, -100%) var(--mouse-y, -100%), black, transparent);
         }
-        
-        /* Pehmeä yleisvalo kursorin ympärille */
-        .cursor-glow {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -4;
-            background: radial-gradient(
-                circle 400px at var(--mouse-x, -100%) var(--mouse-y, -100%),
-                rgba(0, 243, 255, 0.08),
-                transparent 60%
-            );
-        }
-        /* ---------------------------------------- */
+        /* -------------------------------------------------- */
 
         .container { 
             max-width: 800px; 
@@ -107,12 +93,12 @@
             letter-spacing: 4px;
             font-weight: 800;
             text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
             text-align: center;
         }
         .main-title .blink { 
             animation: blinker 1s step-end infinite; 
-            color: var(--synth-pink); 
+            color: var(--trmping-color); 
         }
 
         .app-grid {
@@ -129,6 +115,7 @@
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .window:hover {
@@ -141,7 +128,7 @@
             font-weight: bold;
             display: flex;
             align-items: center;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0,0,0,0.6);
         }
 
         .titlebar-dots {
@@ -190,10 +177,10 @@
             opacity: 1;
         }
 
-        /* === trmPING TEEMA (Värit heti näkyvissä) === */
+        /* === trmPING TEEMA === */
         .window.trmping {
             border: 1px solid var(--trmping-color);
-            box-shadow: 0 5px 25px rgba(0, 255, 65, 0.1);
+            box-shadow: 0 5px 25px rgba(0, 255, 65, 0.05);
         }
         .window.trmping:hover { box-shadow: 0 10px 40px var(--trmping-glow); }
         
@@ -214,10 +201,10 @@
             text-shadow: 0 0 8px var(--trmping-glow);
         }
 
-        /* === TRAKR TEEMA (Värit heti näkyvissä) === */
+        /* === TRAKR TEEMA === */
         .window.trakr {
             border: 1px solid var(--trakr-color);
-            box-shadow: 0 5px 25px rgba(162, 107, 255, 0.1);
+            box-shadow: 0 5px 25px rgba(162, 107, 255, 0.05);
         }
         .window.trakr:hover { box-shadow: 0 10px 40px var(--trakr-glow); }
         
@@ -245,15 +232,17 @@
             body { padding: 30px 15px; }
             .main-title { font-size: 2em; margin-bottom: 40px; }
             .app-grid { grid-template-columns: 1fr; gap: 30px; }
-            .grid-interactive { display: none; } /* Poistetaan raskas efekti mobiilista */
+            .magnetic-distortion { display: none; } /* Poistetaan kursoriefekti mobiilista */
         }
     </style>
 </head>
 <body>
     <!-- Taustakerrokset -->
-    <div class="grid-static"></div>
-    <div class="cursor-glow"></div>
-    <div class="grid-interactive"></div>
+    <div class="crt-bg"></div>
+    <div class="crt-sweep"></div>
+    
+    <!-- Magneettinen Linssi (Reagoi CSS-muuttujiin) -->
+    <div class="magnetic-distortion"></div>
 
     <!-- Varsinainen sisältö -->
     <div class="container">
@@ -262,7 +251,7 @@
 
         <div class="app-grid">
             
-            <!-- Sovellus 1: trmPING (Kiinteä Vihreä Teema) -->
+            <!-- Sovellus 1: trmPING -->
             <div class="window trmping">
                 <div class="titlebar">
                     <div class="titlebar-dots">
@@ -284,7 +273,7 @@
                 </div>
             </div>
 
-            <!-- Sovellus 2: TRAKR (Kiinteä Violetti Teema) -->
+            <!-- Sovellus 2: TRAKR -->
             <div class="window trakr">
                 <div class="titlebar">
                     <div class="titlebar-dots">
@@ -309,7 +298,7 @@
         </div>
     </div> 
 
-    <!-- Skripti synthwave-valoa varten -->
+    <!-- Skripti kursorin koordinaatteja varten -->
     <script>
         const updateCursor = (e) => {
             document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
@@ -318,9 +307,9 @@
         
         document.addEventListener('mousemove', updateCursor);
         
-        // Varmistetaan, että efekti alkaa heti keskeltä ruutua ennen hiiren liikuttamista
-        document.documentElement.style.setProperty('--mouse-x', `${window.innerWidth / 2}px`);
-        document.documentElement.style.setProperty('--mouse-y', `${window.innerHeight / 2}px`);
+        // Asetetaan aloituspiste ruudun ulkopuolelle, ettei efekti näy ennen liikettä
+        document.documentElement.style.setProperty('--mouse-x', `-1000px`);
+        document.documentElement.style.setProperty('--mouse-y', `-1000px`);
     </script>
 </body>
 </html>
