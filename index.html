@@ -88,14 +88,11 @@
             align-items: start; 
         }
 
-        /* MUUTETTU: Modernit katkoviivalliset laatikot, vahvempi tausta */
+        /* Modernit katkoviivalliset laatikot, vahvempi tausta */
         .app-section {
             padding: 20px;
             border: 1px dashed rgba(0, 255, 65, 0.4); 
-            
-            /* MUUTOS: Vahvistettu pohjaväri, jotta erottuu paremmin containerista */
             background: rgba(0, 255, 65, 0.04); 
-            
             transition: all 0.3s ease;
             position: relative; /* z-indexia varten, jotta scanline menee yli */
         }
@@ -103,9 +100,38 @@
         .app-section:hover {
             border: 1px dashed #00ff41;
             box-shadow: inset 0 0 15px rgba(0,255,65,0.05);
-            /* MUUTOS: Hover-tausta kirkastuu aavistuksen */
             background: rgba(0, 255, 65, 0.08);
         }
+
+        /* --- TRAKR ERIKOISTYYLI --- */
+        /* Tuodaan TRAKRiin hieman violettia tehostetta erottamaan se ping-työkalusta */
+        .app-section.trakr-theme {
+            border: 1px dashed rgba(162, 107, 255, 0.4); 
+            background: rgba(162, 107, 255, 0.04); 
+        }
+        
+        .app-section.trakr-theme:hover {
+            border: 1px dashed #a26bff;
+            box-shadow: inset 0 0 15px rgba(162, 107, 255, 0.05);
+            background: rgba(162, 107, 255, 0.08);
+        }
+        
+        .app-section.trakr-theme .app-title {
+            color: #a26bff;
+            text-shadow: 0 0 5px rgba(162, 107, 255, 0.4);
+        }
+        
+        .app-section.trakr-theme a {
+            color: #a26bff;
+            border: 1px dashed rgba(162, 107, 255, 0.4); 
+        }
+        
+        .app-section.trakr-theme a:hover {
+            background: rgba(162, 107, 255, 0.1); 
+            box-shadow: 0 0 10px rgba(162, 107, 255, 0.3);
+            border: 1px dashed #a26bff; 
+        }
+        /* -------------------------- */
 
         .app-title { 
             font-weight: bold; 
@@ -154,7 +180,7 @@
             100% { transform: translate(0); text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); }
         }
 
-        /* KATTAVA MOBIILIOPTIMOINTI (Korjattu!) */
+        /* KATTAVA MOBIILIOPTIMOINTI */
         @media (max-width: 600px) {
             body { padding: 15px; }
             .container { padding: 15px; }
@@ -163,7 +189,6 @@
                 font-size: 1.2em;
                 margin-bottom: 25px;
                 
-                /* TÄSSÄ SE KORJAUS: Mobiilin negatiivinen ylämarginaali vastaa nyt 15px paddingia! */
                 margin-top: -15px; 
                 margin-left: -15px;
                 margin-right: -15px;
@@ -179,7 +204,7 @@
                 gap: 15px;
             }
             
-            /* Vain sovellusnapit venytetään, ei @-merkkiä */
+            /* Vain sovellusnapit venytetään */
             .links a {
                 display: block;
                 text-align: center;
@@ -195,6 +220,7 @@
         <h1>> M.O.P Systems<span class="blink">_</span></h1>
 
         <div class="app-grid">
+            <!-- Sovellus 1: trmPING (Vihreä retro) -->
             <div class="app-section">
                 <div class="app-title">trmPING</div>
                 <div class="links">
@@ -203,5 +229,15 @@
                 </div>
             </div>
 
-    </div> </body>
+            <!-- Sovellus 2: TRAKR (Violetti teema) -->
+            <div class="app-section trakr-theme">
+                <div class="app-title">TRAKR</div>
+                <div class="links">
+                    <a href="https://play.google.com/store/apps/details?id=com.mop.trakr" target="_blank">play store</a>
+                    <a href="https://mop-systems.github.io/trakr/privacy.html">privacy policy</a>
+                </div>
+            </div>
+        </div>
+    </div> 
+</body>
 </html>
