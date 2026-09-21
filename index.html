@@ -5,12 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.O.P Systems</title>
     <style>
-        /* Moderni Retro-Terminaali - Dashed Edition */
+        /* CSS-muuttujat väreille ja teemalle */
+        :root {
+            --bg-base: #0a0b10;
+            --bg-window: #13141c;
+            --text-main: #c0c5ce;
+            --text-muted: #65737e;
+            --border-color: #2b2c36;
+            
+            /* Sovellusten avainvärit */
+            --trmping-color: #00ff41;
+            --trmping-glow: rgba(0, 255, 65, 0.15);
+            
+            --trakr-color: #a26bff;
+            --trakr-glow: rgba(162, 107, 255, 0.15);
+        }
+
         body { 
-            font-family: Consolas, 'Courier New', Courier, monospace; 
-            background-color: #0a0a0a; 
-            color: #00ff41; 
-            padding: 40px; 
+            font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; 
+            background-color: var(--bg-base); 
+            color: var(--text-main); 
+            padding: 40px 20px; 
             line-height: 1.6;
             display: flex;
             justify-content: center;
@@ -18,225 +33,210 @@
             min-height: 100vh;
             margin: 0;
             box-sizing: border-box;
-            overflow-x: hidden; 
             
-            /* Taustan staattinen CRT-juovitus */
-            background-image: linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px);
-            background-size: 100% 4px;
+            /* Hienovarainen Linux-työpöydän pisteverkkotausta (Dot grid) */
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .container { 
-            max-width: 700px; 
+            max-width: 750px; 
             width: 100%;
-            border: 1px dashed rgba(0, 255, 65, 0.5); 
-            padding: 30px; 
-            box-shadow: 0 0 20px rgba(0,255,65,0.05), inset 0 0 20px rgba(0,255,65,0.05); 
             z-index: 1; 
             position: relative; 
-            overflow: hidden; 
-            /* Pääkontainerin tausta */
-            background-color: rgba(0, 0, 0, 0.8); 
         }
 
-        /* Koko laatikon pyyhkivä skannausjuova */
-        .container::after {
-            content: "";
-            position: absolute; 
-            left: 0;
-            width: 100%;
-            height: 100px; 
-            background: linear-gradient(to bottom, rgba(0,255,65,0) 0%, rgba(0,255,65,0.08) 50%, rgba(0,255,65,0) 100%);
-            z-index: 10;
-            pointer-events: none;
-            animation: crt-sweep 6s linear infinite; 
+        /* Pääotsikko - CLI Prompt tyyliin */
+        .prompt-header {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            color: var(--text-main);
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
-        
-        /* MUUTETTU: Otsikko on nyt oma erottuva laatikkonsa */
-        h1 { 
-            text-align: left; 
-            font-size: 1.4em;
-            letter-spacing: 2px; 
-            
-            /* Tehdään otsikosta laatikko lisäämällä yläreuna */
-            border-top: 1px dashed rgba(0, 255, 65, 0.3);
-            border-bottom: 1px dashed rgba(0, 255, 65, 0.3);
-            
-            /* MUUTOS: Erottuva taustaväri otsikkoalueelle */
-            background-color: rgba(0, 255, 65, 0.06);
-            
-            /* Säädetään asemoitumaan reunoihin asti */
-            margin-top: -30px; /* Kompensoidaan .container padding */
-            margin-bottom: 30px;
-            margin-left: -30px;
-            margin-right: -30px;
-            
-            /* Sisäpaikannus tekstille uuden laatikon sisällä */
-            padding-left: 30px;
-            padding-right: 30px;
-            padding-top: 20px;
-            padding-bottom: 20px;
-            
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
-            animation: systemGlitch 5s infinite;
-        }
-        
-        /* CSS Grid sovelluksille */
+
+        .prompt-user { color: #82aaff; font-weight: bold; }
+        .prompt-host { color: #c3e88d; font-weight: bold; }
+        .prompt-dir { color: #89ddff; }
+        .blink { animation: blinker 1s step-end infinite; color: var(--text-main); }
+
+        /* Tiling Window Manager (TWM) -tyylinen Grid */
         .app-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 25px;
             align-items: start; 
         }
 
-        /* Modernit katkoviivalliset laatikot, vahvempi tausta */
-        .app-section {
-            padding: 20px;
-            border: 1px dashed rgba(0, 255, 65, 0.4); 
-            background: rgba(0, 255, 65, 0.04); 
-            transition: all 0.3s ease;
-            position: relative; /* z-indexia varten, jotta scanline menee yli */
-        }
-        
-        .app-section:hover {
-            border: 1px dashed #00ff41;
-            box-shadow: inset 0 0 15px rgba(0,255,65,0.05);
-            background: rgba(0, 255, 65, 0.08);
+        /* Yksittäinen "Ikkuna" */
+        .window {
+            background-color: var(--bg-window);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
-        /* --- TRAKR ERIKOISTYYLI --- */
-        /* Tuodaan TRAKRiin hieman violettia tehostetta erottamaan se ping-työkalusta */
-        .app-section.trakr-theme {
-            border: 1px dashed rgba(162, 107, 255, 0.4); 
-            background: rgba(162, 107, 255, 0.04); 
+        .window:hover {
+            transform: translateY(-2px);
         }
-        
-        .app-section.trakr-theme:hover {
-            border: 1px dashed #a26bff;
-            box-shadow: inset 0 0 15px rgba(162, 107, 255, 0.05);
-            background: rgba(162, 107, 255, 0.08);
-        }
-        
-        .app-section.trakr-theme .app-title {
-            color: #a26bff;
-            text-shadow: 0 0 5px rgba(162, 107, 255, 0.4);
-        }
-        
-        .app-section.trakr-theme a {
-            color: #a26bff;
-            border: 1px dashed rgba(162, 107, 255, 0.4); 
-        }
-        
-        .app-section.trakr-theme a:hover {
-            background: rgba(162, 107, 255, 0.1); 
-            box-shadow: 0 0 10px rgba(162, 107, 255, 0.3);
-            border: 1px dashed #a26bff; 
-        }
-        /* -------------------------- */
 
-        .app-title { 
-            font-weight: bold; 
-            font-size: 1.2em; 
-            margin-bottom: 15px; 
-            color: #00ff41; 
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-        }
-        
-        .links { margin-top: 15px; }
-        
-        /* Napit katkoviivoilla */
-        a { 
-            color: #00ff41; 
-            text-decoration: none; 
-            border: 1px dashed rgba(0, 255, 65, 0.4); 
-            padding: 6px 12px; 
-            display: inline-block; 
-            margin-right: 5px;
-            margin-bottom: 8px;
+        /* Ikkunan yläpalkki (Titlebar) */
+        .titlebar {
+            padding: 8px 15px;
             font-size: 0.85em;
-            transition: all 0.2s ease-in-out;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            background-color: rgba(0,0,0,0.3);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
         }
-        
-        a:hover { 
-            background: rgba(0, 255, 65, 0.1); 
-            color: #00ff41; 
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-            border: 1px dashed #00ff41; 
+
+        .titlebar-dots {
+            display: flex;
+            gap: 6px;
+            margin-right: 15px;
         }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+        }
+
+        /* Ikkunan sisältö */
+        .window-content {
+            padding: 25px;
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        /* Napit (Modernit terminaalikomennot) */
+        a { 
+            text-decoration: none; 
+            font-size: 0.9em;
+            padding: 10px 15px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        a::after {
+            content: "→";
+            opacity: 0.5;
+            transition: transform 0.2s ease;
+        }
+
+        a:hover::after {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+
+        /* === trmPING TEEMA (Vihreä) === */
+        .window.trmping:hover {
+            border-color: var(--trmping-color);
+            box-shadow: 0 10px 30px var(--trmping-glow);
+        }
+        .window.trmping .titlebar-text { color: var(--trmping-color); text-shadow: 0 0 8px var(--trmping-glow); }
+        .window.trmping .dot:nth-child(1) { background-color: var(--trmping-color); box-shadow: 0 0 5px var(--trmping-color); }
         
-        .blink { animation: blinker 1s linear infinite; }
+        .window.trmping a { color: var(--text-main); }
+        .window.trmping a:hover {
+            background-color: var(--trmping-glow);
+            border-color: var(--trmping-color);
+            color: var(--trmping-color);
+        }
+
+        /* === TRAKR TEEMA (Violetti) === */
+        .window.trakr:hover {
+            border-color: var(--trakr-color);
+            box-shadow: 0 10px 30px var(--trakr-glow);
+        }
+        .window.trakr .titlebar-text { color: var(--trakr-color); text-shadow: 0 0 8px var(--trakr-glow); }
+        .window.trakr .dot:nth-child(1) { background-color: var(--trakr-color); box-shadow: 0 0 5px var(--trakr-color); }
         
+        .window.trakr a { color: var(--text-main); }
+        .window.trakr a:hover {
+            background-color: var(--trakr-glow);
+            border-color: var(--trakr-color);
+            color: var(--trakr-color);
+        }
+
         @keyframes blinker { 50% { opacity: 0; } }
 
-        @keyframes crt-sweep {
-            0% { top: -20%; }
-            100% { top: 120%; }
-        }
-
-        @keyframes systemGlitch {
-            0%, 96% { transform: translate(0); text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); }
-            97% { transform: translate(2px, 1px); text-shadow: -2px 0 #ff003c, 2px 0 #00eaff; }
-            98% { transform: translate(-2px, -1px); text-shadow: 2px 0 #ff003c, -2px 0 #00eaff; }
-            99% { transform: translate(2px, -1px); text-shadow: -2px 0 #ff003c, 2px 0 #00eaff; }
-            100% { transform: translate(0); text-shadow: 0 0 8px rgba(0, 255, 65, 0.5); }
-        }
-
-        /* KATTAVA MOBIILIOPTIMOINTI */
+        /* MOBIILIOPTIMOINTI */
         @media (max-width: 600px) {
-            body { padding: 15px; }
-            .container { padding: 15px; }
-            
-            h1 {
-                font-size: 1.2em;
-                margin-bottom: 25px;
-                
-                margin-top: -15px; 
-                margin-left: -15px;
-                margin-right: -15px;
-                
-                padding-left: 15px;
-                padding-right: 15px;
-                padding-top: 15px;
-                padding-bottom: 15px;
-            }
-            
-            .app-grid { 
-                grid-template-columns: 1fr; 
-                gap: 15px;
-            }
-            
-            /* Vain sovellusnapit venytetään */
-            .links a {
-                display: block;
-                text-align: center;
-                margin-right: 0;
-                margin-bottom: 10px;
-                padding: 12px; 
-            }
+            body { padding: 20px 10px; }
+            .prompt-header { font-size: 1.1em; margin-bottom: 25px; }
+            .app-grid { grid-template-columns: 1fr; gap: 20px; }
+            .window-content { padding: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>> M.O.P Systems<span class="blink">_</span></h1>
+        <!-- Linux Prompt -tyylinen otsikko -->
+        <div class="prompt-header">
+            <span class="prompt-user">root</span>@<span class="prompt-host">mop-systems</span>:<span class="prompt-dir">~</span>$ ls -l ./apps<span class="blink">_</span>
+        </div>
 
         <div class="app-grid">
-            <!-- Sovellus 1: trmPING (Vihreä retro) -->
-            <div class="app-section">
-                <div class="app-title">trmPING</div>
-                <div class="links">
-                    <a href="https://play.google.com/store/apps/details?id=com.mop.trmping" target="_blank">play store</a>
-                    <a href="https://mop-systems.github.io/trmping/privacy.html">privacy policy</a>
+            
+            <!-- Sovellus 1: trmPING (Vihreä teema) -->
+            <div class="window trmping">
+                <div class="titlebar">
+                    <div class="titlebar-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <span class="titlebar-text">trmPING_v1.24</span>
+                </div>
+                <div class="window-content">
+                    <div class="links">
+                        <a href="https://play.google.com/store/apps/details?id=com.mop.trmping" target="_blank">
+                            <span>./play_store</span>
+                        </a>
+                        <a href="https://mop-systems.github.io/trmping/privacy.html">
+                            <span>./privacy_policy</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Sovellus 2: TRAKR (Violetti teema) -->
-            <div class="app-section trakr-theme">
-                <div class="app-title">TRAKR</div>
-                <div class="links">
-                    <a href="https://play.google.com/store/apps/details?id=com.mop.trakr" target="_blank">play store</a>
-                    <a href="https://mop-systems.github.io/trakr/privacy.html">privacy policy</a>
+            <div class="window trakr">
+                <div class="titlebar">
+                    <div class="titlebar-dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <span class="titlebar-text">TRAKR_v2.0</span>
+                </div>
+                <div class="window-content">
+                    <div class="links">
+                        <a href="https://play.google.com/store/apps/details?id=com.mop.trakr" target="_blank">
+                            <span>./play_store</span>
+                        </a>
+                        <a href="https://mop-systems.github.io/trakr/privacy.html">
+                            <span>./privacy_policy</span>
+                        </a>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div> 
 </body>
